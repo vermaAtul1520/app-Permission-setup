@@ -5,9 +5,13 @@
  * @format
  */
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
+import { getTrackingStatus, requestTrackingPermission } from 'react-native-tracking-transparency';
+
+import React, { useEffect, useRef, useState } from 'react';
+import type { PropsWithChildren } from 'react';
 import {
+  AppState,
+  Platform,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -16,103 +20,93 @@ import {
   useColorScheme,
   View,
 } from 'react-native';
-
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
-
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
-
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
+import { check, PERMISSIONS, RESULTS, request } from 'react-native-permissions';
+import { NavigationContainer } from '@react-navigation/native';
 
 function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+  const appState = useRef(AppState.currentState);
+  const [appStateVisible, setAppStateVisible] = useState(appState.current);
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
+  // useEffect(() => {
+  //   const fnc = async () => {
+  //     const permissions = await
+  //       check(PERMISSIONS.IOS.LOCATION_ALWAYS)
+  //         .then((result) => {
+  //           switch (result) {
+  //             case RESULTS.UNAVAILABLE:
+  //               console.log('This feature is not available (on this device / in this context)');
+  //               break;
+  //             case RESULTS.DENIED:
+  //               console.log('The permission has not been requested / is denied but requestable');
+  //               break;
+  //             case RESULTS.LIMITED:
+  //               console.log('The permission is limited: some actions are possible');
+  //               break;
+  //             case RESULTS.GRANTED:
+  //               console.log('The permission is granted');
+  //               break;
+  //             case RESULTS.BLOCKED:
+  //               console.log('The permission is denied and not requestable anymore');
+  //               break;
+  //           }
+  //         })
+  //         .catch((error) => {
+  //           // …
+  //           console.log("getting error in checking status,.,....")
+  //         });
+
+  //     // if (permissions) {
+  //     request(PERMISSIONS.IOS.LOCATION_ALWAYS).then((result) => {
+  //       console.log("sdfghjkl;'", result)
+  //     });
+  //     //}
+  //   }
+
+  //   fnc();
+  // }, [])
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      if (
+        appState.current.match(/inactive|background/) &&
+        nextAppState === 'active'
+      ) {
+        console.log('App has come to the foreground!');
+      }
+
+      appState.current = nextAppState;
+      setAppStateVisible(appState.current);
+      console.log('AppState', appState.current);
+    });
+
+    return () => {
+      subscription?.remove();
+    };
+  }, []);
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
+    <SafeAreaView>
+      <NavigationContainer
+        // linking={linking}
+        theme={{
+          colors: {
+            background: '#fff',
+            primary: '#fff',
+            card: '#fff',
+            text: '#000',
+            border: '#fff',
+            notification: '#fff',
+          },
+          dark: true,
+        }}>
+        <View style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%' }}>
+          {/* <Text style={{ backgroundColor: 'red' }}>
+            "Its testing"
+          </Text> */}
         </View>
-      </ScrollView>
+      </NavigationContainer>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
 
 export default App;
