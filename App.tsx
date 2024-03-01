@@ -1,14 +1,5 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
-import { getTrackingStatus, requestTrackingPermission } from 'react-native-tracking-transparency';
-
+import 'react-native-gesture-handler';
 import React, { useEffect, useRef, useState } from 'react';
-import type { PropsWithChildren } from 'react';
 import {
   AppState,
   Platform,
@@ -20,8 +11,9 @@ import {
   useColorScheme,
   View,
 } from 'react-native';
-import { check, PERMISSIONS, RESULTS, request } from 'react-native-permissions';
-import { NavigationContainer } from '@react-navigation/native';
+import AppNavigation from './navigation/AppNavigation';
+import HomeScreen from './screens/HomeScreen';
+import GlobalContextProvider from './context/GlobalContext';
 
 function App(): React.JSX.Element {
   const appState = useRef(AppState.currentState);
@@ -85,26 +77,11 @@ function App(): React.JSX.Element {
   }, []);
 
   return (
-    <SafeAreaView>
-      <NavigationContainer
-        // linking={linking}
-        theme={{
-          colors: {
-            background: '#fff',
-            primary: '#fff',
-            card: '#fff',
-            text: '#000',
-            border: '#fff',
-            notification: '#fff',
-          },
-          dark: true,
-        }}>
-        <View style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%' }}>
-          {/* <Text style={{ backgroundColor: 'red' }}>
-            "Its testing"
-          </Text> */}
-        </View>
-      </NavigationContainer>
+    <SafeAreaView style={{ backgroundColor: 'black' }}>
+      <GlobalContextProvider>
+        {/* <AppNavigation/> */}
+        <HomeScreen />
+      </GlobalContextProvider>
     </SafeAreaView>
   );
 }
