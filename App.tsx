@@ -14,10 +14,20 @@ import {
 import AppNavigation from './navigation/AppNavigation';
 import HomeScreen from './screens/HomeScreen';
 import GlobalContextProvider from './context/GlobalContext';
+import SplashScreen from './screens/SplashScreen';
 
 function App(): React.JSX.Element {
   const appState = useRef(AppState.currentState);
   const [appStateVisible, setAppStateVisible] = useState(appState.current);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  useEffect(() => {
+    // Simulate loading process
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 7000); // Adjust the time as needed
+  }, []);
+
 
   // useEffect(() => {
   //   const fnc = async () => {
@@ -78,10 +88,12 @@ function App(): React.JSX.Element {
 
   return (
     <SafeAreaView style={{ backgroundColor: 'black' }}>
-      <GlobalContextProvider>
-        {/* <AppNavigation/> */}
-        <HomeScreen />
-      </GlobalContextProvider>
+      {!isLoading ?
+        <GlobalContextProvider>
+          {/* <AppNavigation/> */}
+          <HomeScreen />
+        </GlobalContextProvider> :
+        <SplashScreen />}
     </SafeAreaView>
   );
 }
